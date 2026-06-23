@@ -1,0 +1,48 @@
+{
+    "version": "2.0.0",
+    "configurations": [
+        {
+            "name": "Debug Zephyr Server",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/zephyr",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "setupCommands": [
+                {
+                    "description": "让 GDB 跟随 fork 的子进程（调试 logd 时用）",
+                    "text": "-gdb-set follow-fork-mode child",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "美化 C 结构体打印",
+                    "text": "-gdb-set print pretty on",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "build-debug",
+            "postDebugTask": "cleanup-zephyr"
+        },
+        {
+            "name": "Attach to Running Zephyr",
+            "type": "cppdbg",
+            "request": "attach",
+            "program": "${workspaceFolder}/bin/zephyr",
+            "processId": "${command:pickProcess}",
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "setupCommands": [
+                {
+                    "description": "美化结构体打印",
+                    "text": "-gdb-set print pretty on",
+                    "ignoreFailures": true
+                }
+            ]
+        }
+    ]
+}

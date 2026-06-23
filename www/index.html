@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <title>Zephyr 高性能 Web 服务器</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .container {
+            text-align: center;
+            padding: 3rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            max-width: 650px;
+        }
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 0.3rem;
+            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .tagline {
+            color: #888;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            letter-spacing: 0.2em;
+        }
+        .features {
+            text-align: left;
+            margin: 2rem auto;
+            display: inline-block;
+        }
+        .features li {
+            margin: 0.6rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            list-style: none;
+            font-size: 1.05rem;
+        }
+        .features li::before {
+            content: "⚡";
+            position: absolute;
+            left: 0;
+        }
+        .footer {
+            margin-top: 2rem;
+            color: #555;
+            font-size: 0.85rem;
+            line-height: 1.8;
+        }
+        code {
+            background: rgba(255,255,255,0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Zephyr 1.0</h1>
+        <p class="tagline">轻量级高性能 Web 服务器</p>
+
+        <ul class="features">
+            <li>基于 Epoll 的 Reactor 事件驱动模型</li>
+            <li>边缘触发 (ET) + 非阻塞 I/O</li>
+            <li>自适应动态线程池，自动扩缩容</li>
+            <li>零拷贝 HTTP 有限状态机解析器</li>
+            <li><code>EPOLLONESHOT</code> 并发安全机制</li>
+            <li><code>readv</code> 双通道 scatter/gather I/O</li>
+        </ul>
+
+    </div>
+</body>
+</html>

@@ -1,0 +1,39 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build-debug",
+            "type": "shell",
+            "command": "make",
+            "args": ["debug"],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "build-release",
+            "type": "shell",
+            "command": "make",
+            "args": ["all"],
+            "group": "build",
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "cleanup-zephyr",
+            "type": "shell",
+            "command": "pkill -f 'bin/zephyr' 2>/dev/null; echo '[OK] cleaned'",
+            "presentation": {
+                "reveal": "silent"
+            }
+        }
+    ]
+}
