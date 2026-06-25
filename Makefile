@@ -43,18 +43,31 @@ $(LOGDAEMON): $(LOGD_SRCS)
 run: $(TARGET)
 	./$(TARGET)
 
-# 启动日志守护进程（后台运行）
+# 启动日志守护进程
 logd: $(LOGDAEMON)
-	./$(LOGDAEMON) -fg &
-	@echo "[OK] Log daemon started"
+	@./$(LOGDAEMON)
+	@sleep 0.3
+	@if [ -f /tmp/zephyr_logd.pid ]; then \
+		echo "[OK] Log daemon started (pid=$$(cat /tmp/zephyr_logd.pid))"; \
+	else \
+		echo "[!] Log daemon may have failed to start, check logs"; \
+	fi
 
 # 停止日志守护进程
 logd-stop:
-	@if [ -f /tmp/zephyr_logd.pid ]; then \
-		kill $$(cat /tmp/zephyr_logd.pid) 2>/dev/null && echo "[OK] Log daemon stopped" || echo "[!] Log daemon not running"; \
+	@PID=$$(cat /tmp/zephyr_logd.pid 2>/dev/null); \
+	if [ -n "$$PID" ] && kill -0 "$$PID" 2>/dev/null; then \
+		kill "$$PID" 2>/dev/null; \
+		sleep 0.3; \
+		kill -0 "$$PID" 2>/dev/null && kill -9 "$$PID" 2>/dev/null; \
+		echo "[OK] Log daemon stopped (pid=$$PID)"; \
+	elif [ -f /tmp/zephyr_logd.pid ]; then \
+		rm -f /tmp/zephyr_logd.pid; \
+		echo "[!] Stale PID file removed"; \
 	else \
-		echo "[!] PID file not found"; \
+		echo "[!] No PID file, daemon not running"; \
 	fi
+	@rm -f /tmp/zephyr_logd.sock /tmp/zephyr_logd.pid
 
 clean:
 	rm -rf bin/zephyr bin/zephyr_logd

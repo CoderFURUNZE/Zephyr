@@ -329,7 +329,22 @@ int main(int argc, char* argv[])
         }
     }
 
-    g_log_path = log_path;
+    /* ---- 把相对路径转为绝对路径（守护进程化前，否则 chdir("/") 后路径失效） ---- */
+    {
+        char resolved_path[1024];
+        if (log_path[0] != '/') {
+            char cwd[512];
+            if (getcwd(cwd, sizeof(cwd))) {
+                snprintf(resolved_path, sizeof(resolved_path), "%s/%s", cwd, log_path);
+            } else {
+                strncpy(resolved_path, log_path, sizeof(resolved_path) - 1);
+            }
+        } else {
+            strncpy(resolved_path, log_path, sizeof(resolved_path) - 1);
+        }
+        resolved_path[sizeof(resolved_path) - 1] = '\0';
+        g_log_path = resolved_path;
+    }
 
     /* ---- 守护进程化 ---- */
     if (!foreground) {
@@ -338,11 +353,18 @@ int main(int argc, char* argv[])
         }
     }
 
-    /* ---- 注册信号 ---- */
-    signal(SIGINT,  __sig_handler);
-    signal(SIGTERM, __sig_handler);
-    signal(SIGHUP,  __sig_handler);
-    signal(SIGPIPE, SIG_IGN);
+    /* ---- 注册信号（sigaction 替代 signal，关闭 SA_RESTART 让 recv 能被打断） ---- */
+    {
+        struct sigaction sa;
+        memset(&sa, 0, sizeof(sa));
+        sa.sa_handler = __sig_handler;
+        sigemptyset(&sa.sa_mask);
+        sa.sa_flags = 0;  /* 不设 SA_RESTART：recv 返回 EINTR，事件循环检查 g_running */
+        sigaction(SIGINT,  &sa, NULL);
+        sigaction(SIGTERM, &sa, NULL);
+        sigaction(SIGHUP,  &sa, NULL);
+        signal(SIGPIPE, SIG_IGN);
+    }
 
     /* ---- 打开日志文件 ---- */
     if (__open_log_file() < 0) {

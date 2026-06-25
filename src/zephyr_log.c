@@ -154,8 +154,6 @@ void zlog_write(zlog_level_t level,
                 const char* func,
                 const char* fmt, ...)
 {
-    if (g_log_fd < 0) return; /* 未初始化或无连接，静默丢弃 */
-
     /* 格式化用户消息 */
     char msg[2048];
     va_list ap;
@@ -164,7 +162,26 @@ void zlog_write(zlog_level_t level,
     va_end(ap);
 
     pthread_mutex_lock(&g_log_mutex);
-    __send_log(level, file, line, func, msg);
+
+    if (g_log_fd >= 0) {
+        /* 守护进程在线 → 发往 socket */
+        __send_log(level, file, line, func, msg);
+    } else {
+        /* 守护进程不在 → 回退到 stderr */
+        struct timespec ts;
+        clock_gettime(CLOCK_REALTIME, &ts);
+        struct tm tm_buf;
+        time_t sec = ts.tv_sec;
+        localtime_r(&sec, &tm_buf);
+
+        fprintf(stderr,
+            "[%04d-%02d-%02d %02d:%02d:%02d.%03ld] [%s] [%s:%d] [%s] %s\n",
+            tm_buf.tm_year + 1900, tm_buf.tm_mon + 1, tm_buf.tm_mday,
+            tm_buf.tm_hour, tm_buf.tm_min, tm_buf.tm_sec,
+            ts.tv_nsec / 1000000,
+            __level_name(level), file, line, func, msg);
+    }
+
     pthread_mutex_unlock(&g_log_mutex);
 }
 
